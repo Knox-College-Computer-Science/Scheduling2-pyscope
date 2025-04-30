@@ -83,6 +83,7 @@ def read(
         raw_lines = f.readlines()
 
     # Remove equal signs, quotes, blank lines, etc
+    print("File Opened, reading lines now")
     lines = []
     for line in raw_lines:
         logger.debug(f"Parsing line: {line}")
@@ -103,6 +104,8 @@ def read(
         line = line.replace("‘", '"')
         line = line.replace("’", '"')
         lines.append(line)
+
+        print("Read all lines and not doing something down here, some filteration")
 
     # From: https://stackoverflow.com/questions/28401547/how-to-remove-comments-from-a-string
     lines = [re.sub(r"(?m)^ *#.*\n?", "", line) for line in lines]
@@ -125,15 +128,54 @@ def read(
     ]  # Make entire line lowercase except substrings in quotes
 
     # Turn each line into a dictionary, parse keywords
-    lines = [
-        dict(
+    # Detect and handle tabular .sch files (e.g., Vizier-style)
+    # Detect and handle tabular .sch files (e.g., Vizier-style)
+    if all(len(line.split()) >= 4 for line in lines[1:]):  # crude check
+        print("Detected tabular .sch format (no keywords) – attempting to convert")
+
+        new_lines = []
+        # Add default required metadata
+        new_lines.append('title "Vizier Import Observation"')
+        new_lines.append('observer admin@knox.edu')
+        new_lines.append('code knx')
+
+        for line in lines[1:]:  # skip header
+            parts = line.split()
+            if len(parts) < 3:
+                continue
+            try:
+                star_id = parts[0]
+                ra = parts[1].replace("h", ":").replace("m", ":").replace("s", "")
+                dec = parts[2].replace("d", ":").replace("m", ":").replace("s", "")
+                exposure = "30"  # default
+                filt = "g"  # default filter
+                binning = "1x1"
+                readout = "0"
+                new_line = f'source "{star_id}" ra {ra} dec {dec} exposure {exposure} filter {filt} binning {binning} readout {readout}'
+                new_lines.append(new_line)
+            except Exception as e:
+                print(f"Failed to parse tabular line: {line}, error: {e}")
+                continue
+
+        lines = new_lines
+
+
+    print("Turning each line into dictionary below and not detected weird here hehe")
+    parsed_lines = []
+    for line in lines:
+        parsed_line = dict(
             (key, value)
             for key, value in zip(shlex.split(line)[::2], shlex.split(line)[1::2])
         )
-        for line in lines
-    ]
+        parsed_lines.append(parsed_line)
+
+    lines = parsed_lines  # Update the original lines list
+
+    print("Doing keyword matching and cleaning")
+    cleaned_lines = []
     for line_number, line in enumerate(lines):
         new_line = dict()
+        remove_line = False
         for key in line.keys():
             key_matches = []
             value_matches = []
@@ -144,20 +186,27 @@ def read(
             value_matches = list(set(value_matches))
             if len(value_matches) > 1:
                 logger.error(
-                    f"Keyword {key} matches multiple possible keywords: {value_matches}, removing line {line_number}: {line}"
+                    f"Keyword {key} matches multiple possible keywords and hence I am skipping line {line_number}: {line}"
                 )
-                lines.remove(line)
-                continue
+                remove_line = True
+                break
             elif len(value_matches) == 0:
                 logger.error(
-                    f"Keyword {key} does not match any possible keywords: {possible_keys.values()}, removing line {line_number}: {line}"
+                    f"Keyword {key} does not match any possible keywords: and hence I am skipping line {line_number}: {line}"
                 )
-                lines.remove(line)
-                continue
-            new_line.update({value_matches[0]: line[key]})
-        lines[line_number] = new_line
+                print(line_number, " has this line ", line)
+                remove_line = True
+                break
+            else:
+                new_line[value_matches[0]] = line[key]
+        if not remove_line:
+            cleaned_lines.append(new_line)
+
+    lines = cleaned_lines  # Update original lines
+
 
     # Look for title, observers, code, datestart, and dateend keywords
+    print("Looking at the title, observer, code, datestart and others")
     title_matches = []
     line_matches = []
     for line_number, line in enumerate(lines):
@@ -306,6 +355,7 @@ def read(
                 return
 
     # Look for block keywords and collapse into single line
+    print("Looking for block keywords and collapsing into single line")
     new_lines = []
     i = 0
     while i < len(lines):
@@ -358,6 +408,7 @@ def read(
             i += 1
     lines = new_lines
 
+    print("First checkpoint")
     # If no t0 or location, remove nonsidereal lines
     if t0 is None or location is None:
         lines = [
