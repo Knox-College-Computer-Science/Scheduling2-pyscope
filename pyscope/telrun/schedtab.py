@@ -6,409 +6,125 @@ import os
 import astroplan
 import numpy as np
 from astropy import coordinates as coord
-from astropy import table
+from astropy.table import Table
 from astropy import time as astrotime
 from astropy import units as u
 
 logger = logging.getLogger(__name__)
 
 
-def blocks_to_table(observing_blocks):
-    """Convert a list of observing blocks to an astropy table.
+def blocks_to_table(blocks):
+    """Convert a list of observing blocks to an astropy table."""
+    # Initialize lists for each column
+    ids = []
+    names = []
+    start_times = []
+    end_times = []
+    targets = []
+    priorities = []
+    observers = []
+    codes = []
+    titles = []
+    filenames = []
+    types = []
+    backends = []
+    filters = []
+    exposures = []
+    nexp = []
+    repositionings = []
+    shutter_states = []
+    readouts = []
+    binnings = []
+    frame_positions = []
+    frame_sizes = []
+    pm_ra_cosdecs = []
+    pm_decs = []
+    comments = []
+    schs = []
+    statuses = []
+    messages = []
+    sched_times = []
 
-    Parameters
-    ----------
-    observing_blocks : `list`
-        A list of observing blocks.
+    # Process each block
+    for block in blocks:
+        # Handle None values for target coordinates
+        if block.get('target') is None:
+            target_coords = "0h0m0.0s -90d0m0.0s"
+        else:
+            target_coords = f"{block['target_ra']} {block['target_dec']}"
 
-    Returns
-    -------
-    table : astropy.table.Table
-        An astropy table containing the observing blocks.
-    """
+        # Handle proper motion values
+        pm_ra = block.get('pm_ra_cosdec', 0)
+        pm_dec = block.get('pm_dec', 0)
+        
+        # Convert proper motion values to arcsec/hour if they're not already in the right format
+        if isinstance(pm_ra, (int, float)):
+            pm_ra = pm_ra * u.arcsec / u.hour
+        if isinstance(pm_dec, (int, float)):
+            pm_dec = pm_dec * u.arcsec / u.hour
 
-    t = table.Table(masked=True)
+        # Append values to lists
+        ids.append(block.get('ID', 0))
+        names.append(block.get('name', ''))
+        start_times.append(block.get('start_time', None))
+        end_times.append(block.get('end_time', None))
+        targets.append(target_coords)
+        priorities.append(block.get('priority', 0))
+        observers.append(block.get('observer', []))
+        codes.append(block.get('code', ''))
+        titles.append(block.get('title', ''))
+        filenames.append(block.get('filename', ''))
+        types.append(block.get('type', ''))
+        backends.append(block.get('backend', 0))
+        filters.append(block.get('filter', ''))
+        exposures.append(block.get('exposure', 0))
+        nexp.append(block.get('nexp', 0))
+        repositionings.append(block.get('repositioning', [0, 0]))
+        shutter_states.append(block.get('shutter_state', False))
+        readouts.append(block.get('readout', 0))
+        binnings.append(block.get('binning', [1, 1]))
+        frame_positions.append(block.get('frame_position', [0, 0]))
+        frame_sizes.append(block.get('frame_size', [0, 0]))
+        pm_ra_cosdecs.append(pm_ra)
+        pm_decs.append(pm_dec)
+        comments.append(block.get('comment', ''))
+        schs.append(block.get('sch', ''))
+        statuses.append(block.get('status', ''))
+        messages.append(block.get('message', ''))
+        sched_times.append(block.get('sched_time', None))
 
-    unscheduled_blocks_mask = np.array(
-        [
-            "target" in block and block["start_time"] is None
-            for block in observing_blocks
-        ]
-    )
+    # Create the table
+    result_table = Table()
+    result_table['ID'] = ids
+    result_table['name'] = names
+    result_table['start_time'] = start_times
+    result_table['end_time'] = end_times
+    result_table['target'] = targets
+    result_table['priority'] = priorities
+    result_table['observer'] = observers
+    result_table['code'] = codes
+    result_table['title'] = titles
+    result_table['filename'] = filenames
+    result_table['type'] = types
+    result_table['backend'] = backends
+    result_table['filter'] = filters
+    result_table['exposure'] = exposures
+    result_table['nexp'] = nexp
+    result_table['repositioning'] = repositionings
+    result_table['shutter_state'] = shutter_states
+    result_table['readout'] = readouts
+    result_table['binning'] = binnings
+    result_table['frame_position'] = frame_positions
+    result_table['frame_size'] = frame_sizes
+    result_table['pm_ra_cosdec'] = pm_ra_cosdecs
+    result_table['pm_dec'] = pm_decs
+    result_table['comment'] = comments
+    result_table['sch'] = schs
+    result_table['status'] = statuses
+    result_table['message'] = messages
+    result_table['sched_time'] = sched_times
 
-    open_slots_mask = np.array(
-        [not "target" in block for block in observing_blocks]
-    )
-
-    t["ID"] = np.ma.array(
-        [
-            (
-                block["ID"]
-                if "target" in block
-                else astrotime.Time.now().mjd
-            )
-            for block in observing_blocks
-        ],
-        mask=open_slots_mask,
-    )
-
-    # Populate simple columns
-    t["name"] = [
-        (
-            block["name"]
-            if "target" in block
-            else (
-                "TransitionBlock" if type(block) is not astroplan.Slot else "EmptyBlock"
-            )
-        )
-        for block in observing_blocks
-    ]
-
-    t["start_time"] = astrotime.Time(
-        np.ma.array(
-            [
-                (
-                    block.start.mjd
-                    if type(block) is astroplan.Slot
-                    else 0 if block["start_time"] is None else block["start_time"].mjd
-                )
-                for block in observing_blocks
-            ],
-            mask=unscheduled_blocks_mask,
-        ),
-        format="mjd",
-    )
-
-    t["end_time"] = astrotime.Time(
-        np.ma.array(
-            [
-                (
-                    block.end.mjd
-                    if type(block) is astroplan.Slot
-                    else 0 if block["end_time"] is None else block["end_time"].mjd
-                )
-                for block in observing_blocks
-            ],
-            mask=unscheduled_blocks_mask,
-        ),
-        format="mjd",
-    )
-    # print(f"Target to hmsdms: {block.target.to_string('hmsdms')}")
-    t["target"] = coord.SkyCoord(
-        [
-            (
-                block["target"].to_string("hmsdms")
-                if "target" in block
-                else "0h0m0.0s -90d0m0.0s"
-            )
-            for block in observing_blocks
-        ]
-    )
-
-    t["priority"] = np.ma.array(
-        [
-            block["priority"] if "target" in block else 0
-            for block in observing_blocks
-        ],
-        mask=open_slots_mask,
-    )
-
-    temp_list = [
-        block["observer"] if "target" in block else [""]
-        for block in observing_blocks
-    ]
-    t["observer"] = np.ma.array(
-        temp_list, mask=_mask_expander(temp_list, open_slots_mask)
-    )
-
-    t["code"] = np.ma.array(
-        [
-            block["code"] if "target" in block else ""
-            for block in observing_blocks
-        ],
-        mask=open_slots_mask,
-    )
-
-    t["title"] = np.ma.array(
-        [
-            block["title"] if "target" in block else ""
-            for block in observing_blocks
-        ],
-        mask=open_slots_mask,
-    )
-
-    t["filename"] = np.ma.array(
-        [
-            block["filename"] if "target" in block else ""
-            for block in observing_blocks
-        ],
-        mask=open_slots_mask,
-    )
-
-    t["type"] = np.ma.array(
-        [
-            block["type"] if "target" in block else ""
-            for block in observing_blocks
-        ],
-        mask=open_slots_mask,
-    )
-
-    t["backend"] = np.ma.array(
-        [
-            block["backend"] if "target" in block else ""
-            for block in observing_blocks
-        ],
-        mask=open_slots_mask,
-    )
-
-    t["filter"] = np.ma.array(
-        [
-            block["filter"] if "target" in block else ""
-            for block in observing_blocks
-        ],
-        mask=open_slots_mask,
-    )
-
-    t["exposure"] = np.ma.array(
-        [
-            block["exposure"] if "target" in block else 0
-            for block in observing_blocks
-        ],
-        mask=open_slots_mask,
-    )
-    
-    t["nexp"] = np.ma.array(
-        [
-            block["nexp"] if "target" in block else 0
-            for block in observing_blocks
-        ],
-        mask=open_slots_mask,
-    )
-
-    temp_list = [
-        block["repositioning"] if "target" in block else (0, 0)
-        for block in observing_blocks
-    ]
-    t["repositioning"] = np.ma.array(
-        temp_list, mask=_mask_expander(temp_list, open_slots_mask)
-    )
-
-    t["shutter_state"] = np.ma.array(
-        [
-            block["shutter_state"] if "target" in block else False
-            for block in observing_blocks
-        ],
-        mask=open_slots_mask,
-    )
-
-    t["readout"] = np.ma.array(
-        [
-            block["readout"] if "target" in block else 0
-            for block in observing_blocks
-        ],
-        mask=open_slots_mask,
-    )
-
-    temp_list = [
-        block["binning"] if "target" in block else (1, 1)
-        for block in observing_blocks
-    ]
-    t["binning"] = np.ma.array(
-        temp_list, mask=_mask_expander(temp_list, open_slots_mask)
-    )
-
-    temp_list = [
-        block["frame_position"] if "target" in block else (0, 0)
-        for block in observing_blocks
-    ]
-    t["frame_position"] = np.ma.array(
-        temp_list, mask=_mask_expander(temp_list, open_slots_mask)
-    )
-
-    temp_list = [
-        block["frame_size"] if "target" in block else (0, 0)
-        for block in observing_blocks
-    ]
-    t["frame_size"] = np.ma.array(
-        temp_list, mask=_mask_expander(temp_list, open_slots_mask)
-    )
-
-    t["pm_ra_cosdec"] = np.ma.array(
-        [
-            (
-                block["pm_ra_cosdec"].to(u.arcsec / u.hour).value
-                if "target" in block
-                else 0
-            )
-            for block in observing_blocks
-        ],
-        mask=open_slots_mask,
-    )
-
-    t["pm_dec"] = np.ma.array(
-        [
-            (
-                block["pm_dec"].to(u.arcsec / u.hour).value
-                if "target" in block
-                else 0
-            )
-            for block in observing_blocks
-        ],
-        mask=open_slots_mask,
-    )
-
-    t["comment"] = np.ma.array(
-        [
-            block["comment"] if "target" in block else ""
-            for block in observing_blocks
-        ],
-        mask=open_slots_mask,
-    )
-
-    t["sch"] = np.ma.array(
-        [
-            block["sch"] if "target" in block else ""
-            for block in observing_blocks
-        ],
-        mask=open_slots_mask,
-    )
-
-    t["status"] = np.ma.array(
-        [
-            block["status"] if "target" in block else ""
-            for block in observing_blocks
-        ],
-        mask=open_slots_mask,
-    )
-
-    t["message"] = np.ma.array(
-        [
-            block["message"] if "target" in block else ""
-            for block in observing_blocks
-        ],
-        mask=open_slots_mask,
-    )
-
-    t["sched_time"] = np.ma.array(
-        [
-            (block["sched_time"].mjd if "target" in block else 0)
-            for block in observing_blocks
-        ],
-        mask=open_slots_mask,
-    )
-
-    # # Turn the constraints into a list of dicts
-    # constraints = np.full(
-    #     (
-    #         len(observing_blocks),
-    #         np.max(
-    #             [
-    #                 (
-    #                     len(block)
-    #                     if "target" in block and block is not None
-    #                     else 0
-    #                 )
-    #                 for block in observing_blocks
-    #             ]
-    #         ),
-    #     ),
-    #     dict(),
-    # )
-    # for block_num, block in enumerate(observing_blocks):
-    #     constraint_list = np.full(
-    #         np.max(
-    #             [
-    #                 (
-    #                     len(block)
-    #                     if "target" in block and block is not None
-    #                     else 0
-    #                 )
-    #                 for block in observing_blocks
-    #             ]
-    #         ),
-    #         dict(),
-    #     )
-    #     if "target" in block and block is not None:
-    #         for constraint_num, constraint in enumerate(block):
-    #             if type(constraint) is astroplan.TimeConstraint:
-    #                 constraint_dict = {
-    #                     "type": "TimeConstraint",
-    #                     "min": (
-    #                         constraint.min.isot if constraint.min is not None else None
-    #                     ),
-    #                     "max": (
-    #                         constraint.max.isot if constraint.max is not None else None
-    #                     ),
-    #                 }
-    #             elif type(constraint) is astroplan.AtNightConstraint:
-    #                 constraint_dict = {
-    #                     "type": "AtNightConstraint",
-    #                     "max_solar_altitude": (
-    #                         constraint.max_solar_altitude.to(u.deg).value
-    #                         if constraint.max_solar_altitude is not None
-    #                         else 0
-    #                     ),
-    #                 }
-    #             elif type(constraint) is astroplan.AltitudeConstraint:
-    #                 constraint_dict = {
-    #                     "type": "AltitudeConstraint",
-    #                     "min": (
-    #                         constraint.min.to(u.deg).value
-    #                         if constraint.min is not None
-    #                         else 0
-    #                     ),
-    #                     "max": (
-    #                         constraint.max.to(u.deg).value
-    #                         if constraint.max is not None
-    #                         else 90
-    #                     ),
-    #                     "boolean_constraint": constraint.boolean_constraint,
-    #                 }
-    #             elif type(constraint) is astroplan.AirmassConstraint:
-    #                 constraint_dict = {
-    #                     "type": "AirmassConstraint",
-    #                     "min": constraint.min if constraint.min is not None else 0,
-    #                     "max": constraint.max if constraint.max is not None else 100,
-    #                     "boolean_constraint": (
-    #                         constraint.boolean_constraint
-    #                         if constraint.boolean_constraint is not None
-    #                         else False
-    #                     ),
-    #                 }
-    #             elif type(constraint) is astroplan.MoonSeparationConstraint:
-    #                 constraint_dict = {
-    #                     "type": "MoonSeparationConstraint",
-    #                     "min": (
-    #                         constraint.min.to(u.deg).value
-    #                         if constraint.min is not None
-    #                         else 0
-    #                     ),
-    #                     "max": (
-    #                         constraint.max.to(u.deg).value
-    #                         if constraint.max is not None
-    #                         else 360
-    #                     ),
-    #                 }
-    #             elif constraint is None:
-    #                 continue
-    #             else:
-    #                 logger.warning(
-    #                     f"Constraint {constraint} is not supported and will be ignored"
-    #                 )
-    #                 continue
-    
-    #             constraint_list[constraint_num] = constraint_dict
-    #     constraints[block_num] = constraint_list
-
-    # t["constraints"] = np.ma.array(
-    #     constraints, mask=_mask_expander(constraints, open_slots_mask)
-    # )
-
-    t.add_index("ID", unique=True)
-
-    # TODO: Change string columns to handle arbitrary length strings instead of truncating
-
-    return t
+    return result_table
 
 
 def table_to_blocks(table):
@@ -516,11 +232,11 @@ def validate(schedule_table, observatory=None):
         convert_to_blocks = True
 
     assert (
-        type(schedule_table) is table.Table or type(schedule_table) is table.Row
+        type(schedule_table) is Table or type(schedule_table) is Table.Row
     ), "schedule_table must be an astropy table or row"
 
-    if type(schedule_table) is table.Row:
-        schedule_table = table.Table(schedule_table)
+    if type(schedule_table) is Table.Row:
+        schedule_table = Table(schedule_table)
 
     # Check for required columns
     required_columns = [
