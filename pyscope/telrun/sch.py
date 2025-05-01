@@ -10,7 +10,7 @@ from astropy import time as astrotime
 from astropy import units as u
 from astroquery import mpc
 
-#from pyscope import __version__
+from pyscope import __version__
 
 logger = logging.getLogger(__name__)
 
