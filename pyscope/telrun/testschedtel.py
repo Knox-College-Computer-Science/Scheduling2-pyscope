@@ -55,6 +55,11 @@ for schedule_path in [
     for block in blocks:
         block['priority'] = priority
         block['university'] = university_domain
+        # Ensure observer is a list
+        if 'observer' not in block:
+            block['observer'] = ['default@other.edu']
+        elif not isinstance(block['observer'], list):
+            block['observer'] = [block['observer']]
     
     block_groups.append(blocks)
 
