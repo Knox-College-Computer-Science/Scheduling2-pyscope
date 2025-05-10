@@ -8,8 +8,8 @@ from astropy import time as astrotime
 from astropy.time import Time
 from astroplan import FixedTarget, Observer, Transitioner, ObservingBlock
 
-noon_before = Time('2025-04-30 19:00')
-noon_after = Time('2025-05-01 19:00')
+noon_before = Time('2025-05-09 19:00')
+noon_after = Time('2025-05-10 8:00')
 
 from astroplan.constraints import AtNightConstraint, AirmassConstraint
 
@@ -96,7 +96,7 @@ observing_blocks.sort(key=lambda x: x.priority)
 apo = Observer.at_site('apo')
 transitioner = Transitioner(slew_rate=2*u.deg/u.second)
 
-seq_scheduler = astroplan.SequentialScheduler(constraints = [],
+seq_scheduler = astroplan.SequentialScheduler(constraints = global_constraints,
                                     observer = apo,
                                     transitioner = transitioner)
 
