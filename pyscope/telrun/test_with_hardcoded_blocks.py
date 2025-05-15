@@ -7,6 +7,7 @@ from astropy.coordinates import SkyCoord, EarthLocation
 import astropy.units as u
 from zoneinfo import ZoneInfo
 import numpy as np
+import special_star
 
 # Use Central Time (Chicago timezone) with automatic DST handling
 central = ZoneInfo("America/Chicago")
@@ -116,17 +117,19 @@ def run_scheduler(scheduler_class, observer, blocks, start_time, end_time, const
 def main():
     observer = setup_observer()
     targets = setup_targets()
-    constraints = setup_constraints()
-    transitioner = setup_transitioner()
+    for star in targets:
+        print(special_star.isSpecialStar(star))
+    # constraints = setup_constraints()
+    # transitioner = setup_transitioner()
 
-    print_visibility_info(observer, targets, SCHEDULE_START, SCHEDULE_END)
+    # print_visibility_info(observer, targets, SCHEDULE_START, SCHEDULE_END)
 
-    time_constraint = TimeConstraint(SCHEDULE_START, SCHEDULE_END)
-    blocks = create_blocks(targets, time_constraint)
+    # time_constraint = TimeConstraint(SCHEDULE_START, SCHEDULE_END)
+    # blocks = create_blocks(targets, time_constraint)
 
-    print("\n=== Running Priority Scheduler ===")
-    priority_schedule = run_scheduler(PriorityScheduler, observer, blocks, SCHEDULE_START, SCHEDULE_END, constraints, transitioner)
-    print(priority_schedule.to_table())
+    # print("\n=== Running Priority Scheduler ===")
+    # priority_schedule = run_scheduler(PriorityScheduler, observer, blocks, SCHEDULE_START, SCHEDULE_END, constraints, transitioner)
+    # print(priority_schedule.to_table())
 
 if __name__ == '__main__':
     main()

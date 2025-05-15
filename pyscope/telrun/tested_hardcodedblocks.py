@@ -8,47 +8,32 @@ import astropy.units as u
 from zoneinfo import ZoneInfo
 import numpy as np
 
-# Use Central Time (Chicago timezone) with automatic DST handling
-central = ZoneInfo("America/Chicago")
 
-# ===================== CONFIGURATION =====================
-
-SCHEDULE_START = Time('2025-05-09 7:00:00', scale='utc')
-SCHEDULE_END = Time('2025-05-09 8:15:00', scale='utc')
-
-print(SCHEDULE_START.to_datetime(timezone=central))
-print(SCHEDULE_END.to_datetime(timezone=central))
-READ_OUT = 20 * u.second
-DENEB_EXP = 60 * u.second
-M13_EXP = 100 * u.second
-EXPOSURE_COUNT = 16
-# FILTERS = ['B', 'G', 'R']
-FILTERS = ['B','G','R']
 
 # ===================== SETUP FUNCTIONS =====================
-
+central = ZoneInfo("America/Chicago")
 def setup_observer():
     # Coordinates for University of Illinois Astronomical Observatory
     illinois_location = EarthLocation(lat=40.1106*u.deg, lon=-88.2260*u.deg, height=222*u.m)
     return Observer(location=illinois_location, name="UIUC Observatory", timezone="America/Chicago")
 
-def setup_targets():
-    # our_star = SkyCoord(ra=00:03:27.15*u.deg, dec=55:33:03.23*u.deg)
-    ra_str  = "00:03:27.15"          # hours, minutes, seconds
-    dec_str = "+55:33:03.23"         # degrees, arcmin, arcsec
+# def setup_targets():
+#     # our_star = SkyCoord(ra=00:03:27.15*u.deg, dec=55:33:03.23*u.deg)
+#     ra_str  = "00:03:27.15"          # hours, minutes, seconds
+#     dec_str = "+55:33:03.23"         # degrees, arcmin, arcsec
 
-    our_coord = SkyCoord(ra=ra_str,
-                        dec=dec_str,
-                        unit=(u.hourangle, u.deg),   # RA in hours, Dec in degrees
-                        frame="icrs")
-    our_new_star = FixedTarget(coord=our_coord, name="HD 225095")
-    # return [
-    #     FixedTarget.from_name('Altair'),
-    #     FixedTarget.from_name('Vega'),
-    #     FixedTarget.from_name('Deneb'),
-    #     FixedTarget.from_name('M13')
-    # ]
-    return [our_new_star]
+#     our_coord = SkyCoord(ra=ra_str,
+#                         dec=dec_str,
+#                         unit=(u.hourangle, u.deg),   # RA in hours, Dec in degrees
+#                         frame="icrs")
+#     our_new_star = FixedTarget(coord=our_coord, name="HD 225095")
+#     # return [
+#     #     FixedTarget.from_name('Altair'),
+#     #     FixedTarget.from_name('Vega'),
+#     #     FixedTarget.from_name('Deneb'),
+#     #     FixedTarget.from_name('M13')
+#     # ]
+#     return [our_new_star]
 
 def setup_constraints():
     # return [
@@ -105,7 +90,7 @@ def print_visibility_info(observer, targets, start_time, end_time):
 
 # ===================== SCHEDULING =====================
 
-def create_blocks(targets, constraint):
+def create_blocks(targets, constraint, FILTERS, READ_OUT):
     blocks = []
     exposures = {
         'Altair': (60 * u.second, 16),
@@ -132,20 +117,50 @@ def run_scheduler(scheduler_class, observer, blocks, start_time, end_time, const
 
 # ===================== MAIN =====================
 
-def main():
+def main(incomingTargets, starttime, endtime):
+    # Use Central Time (Chicago timezone) with automatic DST handling
+
+    # ===================== CONFIGURATION =====================
+
+    # SCHEDULE_START = Time('2025-05-09 7:00:00', scale='utc')
+    SCHEDULE_START = starttime
+    SCHEDULE_END = endtime
+    # SCHEDULE_END = Time('2025-05-09 8:15:00', scale='utc')
+
+    print(SCHEDULE_START.to_datetime(timezone=central))
+    print(SCHEDULE_END.to_datetime(timezone=central))
+    READ_OUT = 20 * u.second
+    # FILTERS = ['B', 'G', 'R']
+    FILTERS = ['B','G','R']
     observer = setup_observer()
-    targets = setup_targets()
+    targets = incomingTargets
     constraints = setup_constraints()
     transitioner = setup_transitioner()
 
     print_visibility_info(observer, targets, SCHEDULE_START, SCHEDULE_END)
 
     time_constraint = TimeConstraint(SCHEDULE_START, SCHEDULE_END)
-    blocks = create_blocks(targets, time_constraint)
+    blocks = create_blocks(targets, time_constraint, FILTERS, READ_OUT)
 
     print("\n=== Running Priority Scheduler ===")
     priority_schedule = run_scheduler(PriorityScheduler, observer, blocks, SCHEDULE_START, SCHEDULE_END, constraints, transitioner)
-    print(priority_schedule.to_table())
+    table = priority_schedule.to_table()
+    return table
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     ra_str  = "00:03:27.15"          # hours, minutes, seconds
+#     dec_str = "+55:33:03.23"         # degrees, arcmin, arcsec
+
+#     our_coord = SkyCoord(ra=ra_str,
+#                         dec=dec_str,
+#                         unit=(u.hourangle, u.deg),   # RA in hours, Dec in degrees
+#                         frame="icrs")
+#     our_new_star = FixedTarget(coord=our_coord, name="HD 225095")
+#     # return [
+#     #     FixedTarget.from_name('Altair'),
+#     #     FixedTarget.from_name('Vega'),
+#     #     FixedTarget.from_name('Deneb'),
+#     #     FixedTarget.from_name('M13')
+#     # ]
+#     table = main([our_new_star], Time('2025-05-09 7:00:00', scale='utc'), Time('2025-05-09 8:15:00', scale='utc') )
+#     print(table)
