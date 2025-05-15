@@ -7,10 +7,21 @@ from pyscope.telrun import tested_hardcodedblocks
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 from astropy.time import Time
+import sys
+import os
+
+# Add parent directory to path so we can import from tests
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+# Add pyscope directory to the path
+pyscope_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../pyscope'))
+if pyscope_path not in sys.path:
+    sys.path.insert(0, pyscope_path)
+from tests.utils.return_target import make_target
 
 
 from pyscope.telrun import sch
 
+print("The path is ", sys.path)
 def test_HD_225095_Less_Than_35():
     # To test, we need following things
     # One: Start time 
@@ -22,11 +33,8 @@ def test_HD_225095_Less_Than_35():
     end_time = Time('2025-05-09 7:30:00', scale='utc')  # this is end time for this test
     ra_str  = "00:03:27.15"          # hours, minutes, seconds
     dec_str = "+55:33:03.23"         # degrees, arcmin, arcsec
-    our_coord = SkyCoord(ra=ra_str,
-                        dec=dec_str,
-                        unit=(u.hourangle, u.deg),   # RA in hours, Dec in degrees
-                        frame="icrs")
-    our_test_star = FixedTarget(coord=our_coord, name="HD 225095") # we made a new target here
+    name = "HD 225095"
+    our_test_star = make_target(name, ra_str, dec_str)
     # calling the function with warnings suppressed
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -54,11 +62,8 @@ def test_HD_225095_One_Hour():
     end_time = Time('2025-05-09 8:00:00', scale='utc')  # this is end time for this test
     ra_str  = "00:03:27.15"          # hours, minutes, seconds
     dec_str = "+55:33:03.23"         # degrees, arcmin, arcsec
-    our_coord = SkyCoord(ra=ra_str,
-                        dec=dec_str,
-                        unit=(u.hourangle, u.deg),   # RA in hours, Dec in degrees
-                        frame="icrs")
-    our_test_star = FixedTarget(coord=our_coord, name="HD 225095") # we made a new target here
+    name = "HD 225095"
+    our_test_star = make_target(name, ra_str, dec_str)
     # calling the function with warnings suppressed
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -82,11 +87,8 @@ def test_HD_More_Than_One_Hour():
     end_time = Time('2025-05-09 8:15:00', scale='utc')  # this is end time for this test
     ra_str  = "00:03:27.15"          # hours, minutes, seconds
     dec_str = "+55:33:03.23"         # degrees, arcmin, arcsec
-    our_coord = SkyCoord(ra=ra_str,
-                        dec=dec_str,
-                        unit=(u.hourangle, u.deg),   # RA in hours, Dec in degrees
-                        frame="icrs")
-    our_test_star = FixedTarget(coord=our_coord, name="HD 225095") # we made a new target here
+    name = "HD 225095"
+    our_test_star = make_target(name, ra_str, dec_str)
     # calling the function with warnings suppressed
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -111,11 +113,8 @@ def test_HD_225095_Two_Hours():
     end_time = Time('2025-05-09 9:00:00', scale='utc')  # this is end time for this test
     ra_str  = "00:03:27.15"          # hours, minutes, seconds
     dec_str = "+55:33:03.23"         # degrees, arcmin, arcsec
-    our_coord = SkyCoord(ra=ra_str,
-                        dec=dec_str,
-                        unit=(u.hourangle, u.deg),   # RA in hours, Dec in degrees
-                        frame="icrs")
-    our_test_star = FixedTarget(coord=our_coord, name="HD 225095") # we made a new target here
+    name = "HD 225095"
+    our_test_star = make_target(name, ra_str, dec_str)
     # calling the function with warnings suppressed
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
@@ -127,3 +126,20 @@ def test_HD_225095_Two_Hours():
     print(f"Table has {num_rows} rows")
     assert num_rows > 0
     assert num_rows == 5
+
+
+
+# Now, testing a star that is never visible
+def test_star_never_visible():
+    # it should not be scheduled at all
+    # so the length should be 0
+    start_time = Time('2025-05-09 7:00:00', scale='utc') #this is start time for this test
+    end_time = Time('2025-05-09 15:00:00', scale='utc')  # this is end time for this test
+    never_visible = make_target("Acrux", "12:26:35.9", "-63:05:57")
+    with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            table = tested_hardcodedblocks.main([never_visible], start_time, end_time) # this is running while compressing warnings
+    assert table is not None
+    length = len(table)
+    assert length==0
+

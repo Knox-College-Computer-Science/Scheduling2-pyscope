@@ -98,6 +98,7 @@ def create_blocks(targets, constraint, FILTERS, READ_OUT):
         'Deneb': (60 * u.second, 16),
         'M13': (100 * u.second, 16),
         'HD 225095': (100 * u.second, 16),
+        'Acrux': (100 * u.second, 16),
 
     }
 
@@ -148,19 +149,19 @@ def main(incomingTargets, starttime, endtime):
     return table
 
 # if __name__ == '__main__':
-#     ra_str  = "00:03:27.15"          # hours, minutes, seconds
-#     dec_str = "+55:33:03.23"         # degrees, arcmin, arcsec
+#     ra_str  = "12:26:35.9"          # hours, minutes, seconds
+#     dec_str = "-63:05:57"         # degrees, arcmin, arcsec
 
 #     our_coord = SkyCoord(ra=ra_str,
 #                         dec=dec_str,
 #                         unit=(u.hourangle, u.deg),   # RA in hours, Dec in degrees
 #                         frame="icrs")
-#     our_new_star = FixedTarget(coord=our_coord, name="HD 225095")
+#     our_new_star = FixedTarget(coord=our_coord, name="Acrux")
 #     # return [
 #     #     FixedTarget.from_name('Altair'),
 #     #     FixedTarget.from_name('Vega'),
 #     #     FixedTarget.from_name('Deneb'),
 #     #     FixedTarget.from_name('M13')
 #     # ]
-#     table = main([our_new_star], Time('2025-05-09 7:00:00', scale='utc'), Time('2025-05-09 8:15:00', scale='utc') )
+#     table = main([our_new_star], Time('2025-05-09 7:00:00', scale='utc'), Time('2025-05-09 13:00:00', scale='utc') )
 #     print(table)
