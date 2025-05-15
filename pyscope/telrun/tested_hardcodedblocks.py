@@ -13,27 +13,9 @@ import numpy as np
 # ===================== SETUP FUNCTIONS =====================
 central = ZoneInfo("America/Chicago")
 def setup_observer():
-    # Coordinates for University of Illinois Astronomical Observatory
     illinois_location = EarthLocation(lat=40.1106*u.deg, lon=-88.2260*u.deg, height=222*u.m)
     return Observer(location=illinois_location, name="UIUC Observatory", timezone="America/Chicago")
 
-# def setup_targets():
-#     # our_star = SkyCoord(ra=00:03:27.15*u.deg, dec=55:33:03.23*u.deg)
-#     ra_str  = "00:03:27.15"          # hours, minutes, seconds
-#     dec_str = "+55:33:03.23"         # degrees, arcmin, arcsec
-
-#     our_coord = SkyCoord(ra=ra_str,
-#                         dec=dec_str,
-#                         unit=(u.hourangle, u.deg),   # RA in hours, Dec in degrees
-#                         frame="icrs")
-#     our_new_star = FixedTarget(coord=our_coord, name="HD 225095")
-#     # return [
-#     #     FixedTarget.from_name('Altair'),
-#     #     FixedTarget.from_name('Vega'),
-#     #     FixedTarget.from_name('Deneb'),
-#     #     FixedTarget.from_name('M13')
-#     # ]
-#     return [our_new_star]
 
 def setup_constraints():
     # return [
@@ -147,20 +129,20 @@ def main(incomingTargets, starttime, endtime):
     table = priority_schedule.to_table()
     return table
 
-# if __name__ == '__main__':
-#     ra_str  = "00:03:27.15"          # hours, minutes, seconds
-#     dec_str = "+55:33:03.23"         # degrees, arcmin, arcsec
+if __name__ == '__main__':
+    ra_str  = "00:03:27.15"          # hours, minutes, seconds
+    dec_str = "+55:33:03.23"         # degrees, arcmin, arcsec
 
-#     our_coord = SkyCoord(ra=ra_str,
-#                         dec=dec_str,
-#                         unit=(u.hourangle, u.deg),   # RA in hours, Dec in degrees
-#                         frame="icrs")
-#     our_new_star = FixedTarget(coord=our_coord, name="HD 225095")
-#     # return [
-#     #     FixedTarget.from_name('Altair'),
-#     #     FixedTarget.from_name('Vega'),
-#     #     FixedTarget.from_name('Deneb'),
-#     #     FixedTarget.from_name('M13')
-#     # ]
-#     table = main([our_new_star], Time('2025-05-09 7:00:00', scale='utc'), Time('2025-05-09 8:15:00', scale='utc') )
-#     print(table)
+    our_coord = SkyCoord(ra=ra_str,
+                        dec=dec_str,
+                        unit=(u.hourangle, u.deg),   # RA in hours, Dec in degrees
+                        frame="icrs")
+    our_new_star = FixedTarget(coord=our_coord, name="HD 225095")
+    # return [
+    #     FixedTarget.from_name('Altair'),
+    #     FixedTarget.from_name('Vega'),
+    #     FixedTarget.from_name('Deneb'),
+    #     FixedTarget.from_name('M13')
+    # ]
+    table = main([our_new_star], Time('2025-05-09 7:00:00', scale='utc'), Time('2025-05-09 8:15:00', scale='utc') )
+    print(table)
