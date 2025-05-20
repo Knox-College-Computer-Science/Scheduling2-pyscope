@@ -81,6 +81,7 @@ def create_blocks(targets, constraint, FILTERS, READ_OUT):
         'M13': (100 * u.second, 16),
         'HD 225095': (100 * u.second, 16),
         'Acrux': (100 * u.second, 16),
+        'Polaris': (100 * u.second, 16)
 
     }
 

@@ -143,3 +143,37 @@ def test_star_never_visible():
     length = len(table)
     assert length==0
 
+def test_star_always_up():
+    # this star should always be visible hence we can schedule it anytime at night
+    # below is the one small half of night (3 hours)
+    start_time = Time('2025-05-09 1:30:00', scale='utc') #this is start time for this test
+    end_time = Time('2025-05-09 4:30:00', scale='utc')  # this is end time for this test
+    always_up = make_target("Polaris", "02:31:48.7", "+89:15:51")
+    with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            table = tested_hardcodedblocks.main([always_up], start_time, end_time) # this is running while compressing warnings
+    assert table is not None
+    length = len(table)
+    assert length==5
+    # below is the another small window just after above ( 3 hours again )
+    start_time = Time('2025-05-09 4:30:00', scale='utc') #this is start time for this test
+    end_time = Time('2025-05-09 7:30:00', scale='utc')  # this is end time for this test
+    always_up = make_target("Polaris", "02:31:48.7", "+89:15:51")
+    with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            table = tested_hardcodedblocks.main([always_up], start_time, end_time) # this is running while compressing warnings
+    assert table is not None
+    length = len(table)
+    assert length==5
+    # another small window of 3 hours below
+    start_time = Time('2025-05-09 7:30:00', scale='utc') #this is start time for this test
+    end_time = Time('2025-05-09 10:30:00', scale='utc')  # this is end time for this test
+    always_up = make_target("Polaris", "02:31:48.7", "+89:15:51")
+    with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            table = tested_hardcodedblocks.main([always_up], start_time, end_time) # this is running while compressing warnings
+    assert table is not None
+    length = len(table)
+    assert length==5
+
+
