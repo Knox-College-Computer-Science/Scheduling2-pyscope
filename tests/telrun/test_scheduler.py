@@ -3,7 +3,7 @@ import warnings
 from astropy import coordinates as coord
 from astropy import time 
 from astroplan import FixedTarget
-from pyscope.telrun import tested_hardcodedblocks
+from pyscope.telrun import quality
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 from astropy.time import Time
@@ -39,7 +39,7 @@ def test_HD_225095_Less_Than_35():
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         try:
-            table = tested_hardcodedblocks.main([our_test_star], start_time, end_time)
+            table = quality.main([our_test_star], start_time, end_time)
         except Exception as e:
             print(f"Ignored exception: {e}")
             table = None
@@ -67,7 +67,7 @@ def test_HD_225095_One_Hour():
     # calling the function with warnings suppressed
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        table = tested_hardcodedblocks.main([our_test_star], start_time, end_time) # this is running while compressing warnings
+        table = quality.main([our_test_star], start_time, end_time) # this is running while compressing warnings
     
     # Check the table exists and count rows
     assert table is not None
@@ -92,7 +92,7 @@ def test_HD_More_Than_One_Hour():
     # calling the function with warnings suppressed
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        table = tested_hardcodedblocks.main([our_test_star], start_time, end_time) # this is running while compressing warnings
+        table = quality.main([our_test_star], start_time, end_time) # this is running while compressing warnings
     
     # Check the table exists and count rows
     assert table is not None
@@ -118,7 +118,7 @@ def test_HD_225095_Two_Hours():
     # calling the function with warnings suppressed
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        table = tested_hardcodedblocks.main([our_test_star], start_time, end_time) # this is running while compressing warnings
+        table = quality.main([our_test_star], start_time, end_time) # this is running while compressing warnings
     
     # Check the table exists and count rows
     assert table is not None
@@ -138,7 +138,7 @@ def test_star_never_visible():
     never_visible = make_target("Acrux", "12:26:35.9", "-63:05:57")
     with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            table = tested_hardcodedblocks.main([never_visible], start_time, end_time) # this is running while compressing warnings
+            table = quality.main([never_visible], start_time, end_time) # this is running while compressing warnings
     assert table is not None
     length = len(table)
     assert length==0
@@ -151,7 +151,7 @@ def test_star_always_up():
     always_up = make_target("Polaris", "02:31:48.7", "+89:15:51")
     with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            table = tested_hardcodedblocks.main([always_up], start_time, end_time) # this is running while compressing warnings
+            table = quality.main([always_up], start_time, end_time) # this is running while compressing warnings
     assert table is not None
     length = len(table)
     assert length==5
@@ -161,7 +161,7 @@ def test_star_always_up():
     always_up = make_target("Polaris", "02:31:48.7", "+89:15:51")
     with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            table = tested_hardcodedblocks.main([always_up], start_time, end_time) # this is running while compressing warnings
+            table = quality.main([always_up], start_time, end_time) # this is running while compressing warnings
     assert table is not None
     length = len(table)
     assert length==5
@@ -171,7 +171,7 @@ def test_star_always_up():
     always_up = make_target("Polaris", "02:31:48.7", "+89:15:51")
     with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            table = tested_hardcodedblocks.main([always_up], start_time, end_time) # this is running while compressing warnings
+            table = quality.main([always_up], start_time, end_time) # this is running while compressing warnings
     assert table is not None
     length = len(table)
     assert length==5
