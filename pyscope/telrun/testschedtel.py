@@ -20,48 +20,6 @@ global_constraints = [AirmassConstraint(max = 3, boolean_constraint = False),
 # Set the schedule time
 sched_time = astrotime.Time.now()
 
-# Read the .sch file
-block_groups = []
-# Define priorities for each university
-university_priorities = {
-    "uiowa.edu": 1,  # University of Iowa - Highest priority
-    "augustana.edu": 2,  # Augustana College
-    "macalester.edu": 3,  # Macalester College
-    "knox.edu": 4,  # Knox College
-    "Other": 5  # Default priority for unknown universities
-}
-
-# Read and assign priorities to each schedule
-for schedule_path in [
-    r"C:\Users\dibya\Documents\GitHub\Scheduling2-pyscope\pyscope\telrun\schedules\Be.sch",
-    r"C:\Users\dibya\Documents\GitHub\Scheduling2-pyscope\pyscope\telrun\schedules\Sch Files (Valid)\xpgQSOTest.sch",
-    r"C:\Users\dibya\Documents\GitHub\Scheduling2-pyscope\pyscope\telrun\schedules\Sch Files (Valid)\alc_m57-2025-03-12 (1).sch",
-    r"C:\Users\dibya\Documents\GitHub\Scheduling2-pyscope\pyscope\telrun\schedules\Sch Files (Valid)\xpgQSOs.sch"
-]:
-    blocks = sch.read(schedule_path)
-    # Extract university from the first block's observer email
-    if blocks and 'observer' in blocks[0]:
-        observer_email = blocks[0]['observer']
-        if isinstance(observer_email, list):
-            observer_email = observer_email[0]  # Take first email if multiple observers
-        university_domain = observer_email.split('@')[-1] if '@' in observer_email else 'Other'
-    else:
-        university_domain = 'Other'
-    
-    # Assign priority based on university domain
-    priority = university_priorities.get(university_domain, university_priorities['Other'])
-    
-    # Assign priority to all blocks in the group
-    for block in blocks:
-        block['priority'] = priority
-        block['university'] = university_domain
-        # Ensure observer is a list
-        if 'observer' not in block:
-            block['observer'] = ['default@other.edu']
-        elif not isinstance(block['observer'], list):
-            block['observer'] = [block['observer']]
-    
-    block_groups.append(blocks)
 
 print("sch parser did not gave any errors")
 # Add IDs and sched_time to all blocks

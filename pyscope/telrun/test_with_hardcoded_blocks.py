@@ -112,6 +112,18 @@ def run_scheduler(scheduler_class, observer, blocks, start_time, end_time, const
     scheduler(blocks, schedule)
     return schedule
 
+# ===================== PRIORITY SCHEDULE =====================
+
+
+# Initialize the priority scheduler with the constraints and transitioner
+prior_scheduler = PriorityScheduler(constraints = global_constraints,
+                                    observer = apo,
+                                    transitioner = transitioner)
+# Initialize a Schedule object, to contain the new schedule
+priority_schedule = Schedule(noon_before, noon_after)
+
+# Call the schedule with the observing blocks and schedule to schedule the blocks
+prior_scheduler(blocks, priority_schedule)
 # ===================== MAIN =====================
 
 def main():
