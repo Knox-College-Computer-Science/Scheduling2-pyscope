@@ -82,13 +82,58 @@ Or with conda:
     conda create -n pyscope-dev python=3.12
     conda activate pyscope-dev
 
-To install pyscope for development, clone the repository and install with pip:
+Then, clone the repository from the Knox College fork:
 
 .. code-block:: bash
 
-    git clone https://github.com/macro-consortium/pyscope
-    cd pyscope
+    git clone https://github.com/Knox-College-Computer-Science/Scheduling2-pyscope.git
+    cd Scheduling2-pyscope
+
+Next, switch to the correct development branch:
+
+.. code-block:: bash
+
+    git checkout team-mercury-hotfixes
+
+Alternatively, you can directly clone the branch using:
+
+.. code-block:: bash
+
+    git clone -b team-mercury-hotfixes https://github.com/Knox-College-Computer-Science/Scheduling2-pyscope.git
+    cd Scheduling2-pyscope
+
+Now, install all the dependencies:
+
+.. code-block:: bash
+
     pip install -e ".[dev]"
+
+Finally, we are done installing all the dependencies required to run the package.
+You're now ready to test and run `pyscope`.
+
+To run the test cases:
+
+.. code-block:: bash
+
+    cd tests
+    cd telrun
+    pytest test_scheduler.py
+
+To run the main scheduler logic:
+
+.. code-block:: bash
+
+    cd ../../pyscope/telrun
+    python quality.py
+
+Common Errors
+-------------
+If you encounter errors such as missing modules or failed dependencies, try the following steps:
+
+1. Make sure your conda environment is **activated properly**.
+2. Confirm that the Python version is **3.12** as required.
+3. Verify that your **current working directory** is correct.
+4. If all of the above are correct and you're still facing issues, delete the conda environment and create a fresh one by following the steps again from the top.
 
 Usage
 -----
