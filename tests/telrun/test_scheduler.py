@@ -109,8 +109,8 @@ def test_HD_225095_Two_Hours():
     # And, that is it :)))))
     #Should have 2 transition blocks, with 3 filters and 3 blocks [Total 5 blocks]
     #Length=5
-    start_time = Time('2025-05-09 7:00:00', scale='utc') #this is start time for this test
-    end_time = Time('2025-05-09 9:00:00', scale='utc')  # this is end time for this test
+    start_time = Time('2025-05-09 1:30:00', scale='utc') #this is start time for this test
+    end_time = Time('2025-05-09 10:30:00', scale='utc')  # this is end time for this test
     ra_str  = "00:03:27.15"          # hours, minutes, seconds
     dec_str = "+55:33:03.23"         # degrees, arcmin, arcsec
     name = "HD 225095"
@@ -133,8 +133,8 @@ def test_HD_225095_Two_Hours():
 def test_star_never_visible():
     # it should not be scheduled at all
     # so the length should be 0
-    start_time = Time('2025-05-09 7:00:00', scale='utc') #this is start time for this test
-    end_time = Time('2025-05-09 15:00:00', scale='utc')  # this is end time for this test
+    start_time = Time('2025-05-09 1:30:00', scale='utc') #this is start time for this test
+    end_time = Time('2025-05-09 10:30:00', scale='utc')  # this is end time for this test
     never_visible = make_target("Acrux", "12:26:35.9", "-63:05:57")
     with warnings.catch_warnings():
             warnings.simplefilter("ignore")
@@ -175,5 +175,16 @@ def test_star_always_up():
     assert table is not None
     length = len(table)
     assert length==5
+
+def test_star_near_moon_should_get_ignored():
+    start_time = Time('2025-05-09 1:30:00', scale='utc') #this is start time for this test around 8:30 cst
+    end_time = Time('2025-05-09 10:30:00', scale='utc')  # this is end time for this test around 5:30 cst
+    near_moon_star = FixedTarget.from_name("Spica")
+    with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            table = quality.main([near_moon_star], start_time, end_time) # this is running while compressing warnings
+    assert table is not None
+    length = len(table)
+    assert length==0 #it should not get scheduled at all
 
 
