@@ -176,7 +176,7 @@ def test_star_always_up():
     length = len(table)
     assert length==5
 
-def test_star_near_moon_should_get_ignored():
+def test_star_near_moon():
     start_time = Time('2025-05-09 1:30:00', scale='utc') #this is start time for this test around 8:30 cst
     end_time = Time('2025-05-09 10:30:00', scale='utc')  # this is end time for this test around 5:30 cst
     near_moon_star = FixedTarget.from_name("Spica")
@@ -187,7 +187,7 @@ def test_star_near_moon_should_get_ignored():
     length = len(table)
     assert length==0 #it should not get scheduled at all
 
-def test_two_stars_trying_at_same_time():
+def test_two_overlapping_stars():
     start_time = Time('2025-05-09 7:00:00', scale='utc') 
     end_time = Time('2025-05-09 7:40:00', scale='utc')  
     star_one = FixedTarget.from_name("Altair")
