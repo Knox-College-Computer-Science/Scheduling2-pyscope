@@ -187,4 +187,30 @@ def test_star_near_moon_should_get_ignored():
     length = len(table)
     assert length==0 #it should not get scheduled at all
 
+def test_two_stars_trying_at_same_time():
+    start_time = Time('2025-05-09 7:00:00', scale='utc') 
+    end_time = Time('2025-05-09 7:40:00', scale='utc')  
+    star_one = FixedTarget.from_name("Altair")
+    star_two = FixedTarget.from_name("Vega")
+    with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            table = quality.main([star_one, star_two], start_time, end_time) # this is running while compressing warnings
+    assert table is not None
+    length = len(table)
+    # now, according to FIFO, only Altair Star should get scheduled in that time frame
+    assert length==1 #only one should get scheduled
+    # And, let's check the name of the target
+    assert "Altair"==table[0]['target']
+    # now, let's run the same code but putting star_two as first star
+    with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            table = quality.main([star_two, star_one], start_time, end_time) # this is running while compressing warnings
+    assert table is not None
+    length = len(table)
+    # now, according to FIFO, only Altair Star should get scheduled in that time frame
+    assert length==1 #only one should get scheduled
+    # And, let's check the name of the target
+    assert "Vega"==table[0]['target']
+
+
 

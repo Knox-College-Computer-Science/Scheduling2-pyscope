@@ -158,18 +158,18 @@ if __name__ == '__main__':
     targets = [
         FixedTarget.from_name('Altair'),
         FixedTarget.from_name('Vega'),
-        FixedTarget.from_name('Deneb'),
-        FixedTarget.from_name('M13'),
-        FixedTarget.from_name("Spica")
+        # FixedTarget.from_name('Deneb'),
+        # FixedTarget.from_name('M13'),
+        # FixedTarget.from_name("Spica")
     ]
     # table = main([our_new_star], Time('2025-05-09 7:00:00', scale='utc'), Time('2025-05-09 8:15:00', scale='utc') )
     # table = main(targets, Time('2025-05-09 7:00:00', scale='utc'), Time('2025-05-09 8:15:00', scale='utc') )
-    table = main(targets, Time('2025-05-09 19:00:00', scale='utc'), Time('2025-05-10 08:00:00', scale='utc') )
+    table = main(targets, Time('2025-05-09 7:00:00', scale='utc'), Time('2025-05-9 7:30:00', scale='utc') )
     print(table)
     # 📅 Auto-name file based on current time
-    now = astrotime.Time.now()
-    formatted_time = now.strftime("%Y-%m-%dT%H-%M-%S")
-    output_path = f"./schedules/output/telrun_{formatted_time}.ecsv"
-    # Save the table
-    table.write(output_path, format="ascii.ecsv", overwrite=True)
-    print(f"Saved table to {output_path} ✅")
+    # now = astrotime.Time.now()
+    # formatted_time = now.strftime("%Y-%m-%dT%H-%M-%S")
+    # output_path = f"./schedules/output/telrun_{formatted_time}.ecsv"
+    # # Save the table
+    # table.write(output_path, format="ascii.ecsv", overwrite=True)
+    # print(f"Saved table to {output_path} ✅")
