@@ -8,6 +8,7 @@ import astropy.units as u
 from zoneinfo import ZoneInfo
 import numpy as np
 import warnings
+from astropy import time as astrotime
 
 warnings.filterwarnings('ignore', category=RuntimeWarning)
 warnings.filterwarnings('ignore', category=UserWarning)
@@ -165,3 +166,10 @@ if __name__ == '__main__':
     # table = main(targets, Time('2025-05-09 7:00:00', scale='utc'), Time('2025-05-09 8:15:00', scale='utc') )
     table = main(targets, Time('2025-05-09 19:00:00', scale='utc'), Time('2025-05-10 08:00:00', scale='utc') )
     print(table)
+    # 📅 Auto-name file based on current time
+    now = astrotime.Time.now()
+    formatted_time = now.strftime("%Y-%m-%dT%H-%M-%S")
+    output_path = f"./schedules/output/telrun_{formatted_time}.ecsv"
+    # Save the table
+    table.write(output_path, format="ascii.ecsv", overwrite=True)
+    print(f"Saved table to {output_path} ✅")
