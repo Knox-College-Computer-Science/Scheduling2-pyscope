@@ -209,8 +209,12 @@ def test_two_overlapping_stars():
     length = len(table)
     # now, according to FIFO, only Altair Star should get scheduled in that time frame
     assert length==1 #only one should get scheduled
-    # And, let's check the name of the target
+    # And, let's check the name of the target 
+    #Take exposure time into account, don't hardcode this in as it is different for each image
     assert "Vega"==table[0]['target']
-
+    
+#Next tests:
+#def test_exposure_time():
+#If target and filter is the same, does transition block show up?
 
 
