@@ -108,7 +108,7 @@ def run_scheduler(scheduler_class, observer, blocks, start_time, end_time, const
 
 # ===================== MAIN =====================
 
-def main(incomingTargets, starttime, endtime):
+def main(incomingTargets, starttime, endtime, filters):
     # Use Central Time (Chicago timezone) with automatic DST handling
 
     # ===================== CONFIGURATION =====================
@@ -122,7 +122,7 @@ def main(incomingTargets, starttime, endtime):
     print(SCHEDULE_END.to_datetime(timezone=central))
     READ_OUT = 20 * u.second
     # FILTERS = ['B', 'G', 'R']
-    FILTERS = ['B','G','R']
+    FILTERS = filters
     observer = setup_observer()
     targets = incomingTargets
     constraints = setup_constraints()
@@ -157,14 +157,14 @@ if __name__ == '__main__':
     # ]
     targets = [
         FixedTarget.from_name('Altair'),
-        FixedTarget.from_name('Vega'),
+        # FixedTarget.from_name('Vega'),
         # FixedTarget.from_name('Deneb'),
         # FixedTarget.from_name('M13'),
         # FixedTarget.from_name("Spica")
     ]
     # table = main([our_new_star], Time('2025-05-09 7:00:00', scale='utc'), Time('2025-05-09 8:15:00', scale='utc') )
     # table = main(targets, Time('2025-05-09 7:00:00', scale='utc'), Time('2025-05-09 8:15:00', scale='utc') )
-    table = main(targets, Time('2025-05-09 7:00:00', scale='utc'), Time('2025-05-9 7:30:00', scale='utc') )
+    table = main(targets, Time('2025-05-09 7:00:00', scale='utc'), Time('2025-05-9 10:30:00', scale='utc') )
     print(table)
     # 📅 Auto-name file based on current time
     # now = astrotime.Time.now()
