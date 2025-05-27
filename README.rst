@@ -53,6 +53,19 @@ Features
   `Astropy-affiliated <https://www.astropy.org/affiliated/>`_
   packages, and `ASCOM <https://ascom-standards.org/>`_
 
+------------
+**Team Name:** Team Mercury
+
+**Team Members:**
+* Dibyasha Sharma
+* Erin Mulcahey
+* Santosh Pant
+* Ratna Kirti
+
+**MVP Goal Achieved:**
+* Priority Scheduling (Made using Astroplan)
+* Multiple pytest implementations to test our code
+
 Installation
 ------------
 pyscope is available on PyPI and can be installed with pip:
