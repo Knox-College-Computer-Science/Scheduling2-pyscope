@@ -66,6 +66,27 @@ Features
 * Priority Scheduling (Made using Astroplan)
 * Multiple pytest implementations to test our code
 
+Priority Scheduler Implementation
+---------------------------------
+Team Mercury has implemented a priority-based scheduling system with the following assumptions and constraints:
+
+**Implementation Details:**
+* Built using `Astroplan <https://astroplan.readthedocs.io/>`_ functionalities with minor optimizations for scheduling
+* Uses First-In-First-Out (FIFO) system for concurrent observations
+* Overlapping observations result in subsequent requests being dropped
+
+**Scheduling Constraints:**
+* **Minimum observation time:** 32 minutes for at least one filter
+* **Time zone:** All output times are in UTC
+* **Air mass constraint:** Maximum air mass of 3.0
+* **Moon separation:** Minimum 30 degrees separation from the Moon (targets below this threshold are not scheduled)
+* **Quality assessment:** Direct constraint imports instead of separate quality score functions
+
+**System Behavior:**
+* For multiple targets: Single block scheduling approach
+* Constraint validation occurs before scheduling
+* No sch file parser implementation (functionality requires improvement)
+
 Installation
 ------------
 pyscope is available on PyPI and can be installed with pip:
