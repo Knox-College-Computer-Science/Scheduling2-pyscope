@@ -169,7 +169,7 @@ To run the main scheduler logic:
 .. code-block:: bash
 
     cd ../../pyscope/telrun
-    python quality.py
+    python mercuryschedule.py
 
 Common Errors
 -------------
