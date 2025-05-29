@@ -9,6 +9,8 @@ from zoneinfo import ZoneInfo
 import numpy as np
 import warnings
 from astropy import time as astrotime
+from astropy.table import Table
+
 
 warnings.filterwarnings('ignore', category=RuntimeWarning)
 warnings.filterwarnings('ignore', category=UserWarning)
@@ -78,6 +80,9 @@ def create_blocks(targets, constraint, filters, read_out, exposures):
     blocks = []
     for priority, band in enumerate(filters):
         for target in targets:
+            if target.name not in exposures:
+                print(f"Warning: No exposure defined for {target.name}, skipping.")
+                continue
             exp_time, n = exposures[target.name]
             blocks.append(ObservingBlock.from_exposures(
                 target, priority, exp_time, n, read_out,
@@ -108,7 +113,9 @@ def main(incomingTargets, starttime, endtime, filters=None, exposures=None, read
             'M13': (100 * u.second, 16),
             'HD 225095': (100 * u.second, 16),
             'Acrux': (100 * u.second, 16),
-            'Polaris': (100 * u.second, 16)
+            'Polaris': (100 * u.second, 16),
+            'Canopus': (100 * u.second, 16),
+            'Sirius': (100 * u.second, 16)
         }
 
     SCHEDULE_START = starttime
@@ -126,12 +133,16 @@ def main(incomingTargets, starttime, endtime, filters=None, exposures=None, read
 
     time_constraint = TimeConstraint(SCHEDULE_START, SCHEDULE_END)
     blocks = create_blocks(targets, time_constraint, filters, read_out, exposures)
+    if not blocks:
+        print("⚠️ No valid observing blocks created. Skipping scheduling.")
+        return Table()  # or None, depending on how your tests handle it
 
     print("\n=== Running Priority Scheduler ===")
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         priority_schedule = run_scheduler(PriorityScheduler, observer, blocks, SCHEDULE_START, SCHEDULE_END, constraints, transitioner)
     table = priority_schedule.to_table()
+    # print(table)
     return table
 
 if __name__ == '__main__':
