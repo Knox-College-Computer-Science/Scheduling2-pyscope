@@ -6,7 +6,7 @@ pyscope
 
     |License| |Zenodo| |PyPI Version| |PyPI Python Versions| |PyPI Downloads| |Astropy| |GitHub CI| |Code Coverage| |Documentation Status| |Codespaces Status| |pre-commit| |Black| |isort| |Donate|
 
-.. image:: pyscope_logo.png 
+.. image:: https://github.com/macro-consortium/pyscope/blob/main/docs/source/_static/pyscope_logo_white.png
     :alt: pyscope logo
 
 This is the repository for `pyscope <https://pyscope.readthedocs.io/en/latest/>`_,
@@ -53,39 +53,50 @@ Features
   `Astropy-affiliated <https://www.astropy.org/affiliated/>`_
   packages, and `ASCOM <https://ascom-standards.org/>`_
 
-------------
-**Team Name:** Team Mercury
+Team Name: Team Mercury
+-----------------------
 
-**Team Members:**
+Team Members:
+-------------
 * Dibyasha Sharma
 * Erin Mulcahey
 * Santosh Pant
 * Ratna Kirti
 
-**MVP Goal Achieved:**
+
+MVP Goal Achieved:
+------------------
 * Priority Scheduling (Made using Astroplan)
 * Multiple pytest implementations to test our code
+
 
 Priority Scheduler Implementation
 ---------------------------------
 Team Mercury has implemented a priority-based scheduling system with the following assumptions and constraints:
 
-**Implementation Details:**
+
+Implementation Details:
+-----------------------
 * Built using `Astroplan <https://astroplan.readthedocs.io/>`_ functionalities with minor optimizations for scheduling
 * Uses First-In-First-Out (FIFO) system for concurrent observations
 * Overlapping observations result in subsequent requests being dropped
 
-**Scheduling Constraints:**
-* **Minimum observation time:** 32 minutes for at least one filter
-* **Time zone:** All output times are in UTC
-* **Air mass constraint:** Maximum air mass of 3.0
-* **Moon separation:** Minimum 30 degrees separation from the Moon (targets below this threshold are not scheduled)
-* **Quality assessment:** Direct constraint imports instead of separate quality score functions
 
-**System Behavior:**
+Scheduling Constraints:
+-----------------------
+* Minimum observation time: 32 minutes for at least one filter
+* Time zone: All output times are in UTC
+* Air mass constraint: Maximum air mass of 3.0
+* Moon separation: Minimum 30 degrees separation from the Moon (targets below this threshold are not scheduled)
+* Quality assessment: Direct constraint imports instead of separate quality score functions
+
+
+System Behavior:
+----------------
 * For multiple targets: Single block scheduling approach
 * Constraint validation occurs before scheduling
 * No sch file parser implementation (functionality requires improvement)
+
 
 Installation
 ------------
