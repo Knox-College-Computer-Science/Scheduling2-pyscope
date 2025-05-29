@@ -3,7 +3,7 @@ import warnings
 from astropy import coordinates as coord
 from astropy import time 
 from astroplan import FixedTarget
-from pyscope.telrun import quality
+from pyscope.telrun import mercuryschedule
 from astropy.coordinates import SkyCoord
 import astropy.units as u
 from astropy.time import Time
@@ -39,7 +39,7 @@ def test_HD_225095_Less_Than_35():
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         try:
-            table = quality.main([our_test_star], start_time, end_time, ['B', 'G', 'R'])
+            table = mercuryschedule.main([our_test_star], start_time, end_time, ['B', 'G', 'R'])
         except Exception as e:
             print(f"Ignored exception: {e}")
             table = None
@@ -67,7 +67,7 @@ def test_HD_225095_One_Hour():
     # calling the function with warnings suppressed
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        table = quality.main([our_test_star], start_time, end_time, ['B', 'G', 'R']) # this is running while compressing warnings
+        table = mercuryschedule.main([our_test_star], start_time, end_time, ['B', 'G', 'R']) # this is running while compressing warnings
     
     # Check the table exists and count rows
     assert table is not None
@@ -92,7 +92,7 @@ def test_HD_More_Than_One_Hour():
     # calling the function with warnings suppressed
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        table = quality.main([our_test_star], start_time, end_time, ['B', 'G', 'R']) # this is running while compressing warnings
+        table = mercuryschedule.main([our_test_star], start_time, end_time, ['B', 'G', 'R']) # this is running while compressing warnings
     
     # Check the table exists and count rows
     assert table is not None
@@ -118,7 +118,7 @@ def test_HD_225095_Two_Hours():
     # calling the function with warnings suppressed
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        table = quality.main([our_test_star], start_time, end_time, ['B', 'G', 'R']) # this is running while compressing warnings
+        table = mercuryschedule.main([our_test_star], start_time, end_time, ['B', 'G', 'R']) # this is running while compressing warnings
     
     # Check the table exists and count rows
     assert table is not None
@@ -138,7 +138,7 @@ def test_star_never_visible():
     never_visible = make_target("Acrux", "12:26:35.9", "-63:05:57")
     with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            table = quality.main([never_visible], start_time, end_time, ['B', 'G', 'R']) # this is running while compressing warnings
+            table = mercuryschedule.main([never_visible], start_time, end_time, ['B', 'G', 'R']) # this is running while compressing warnings
     assert table is not None
     length = len(table)
     assert length==0
@@ -151,7 +151,7 @@ def test_star_always_up():
     always_up = make_target("Polaris", "02:31:48.7", "+89:15:51")
     with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            table = quality.main([always_up], start_time, end_time, ['B', 'G', 'R']) # this is running while compressing warnings
+            table = mercuryschedule.main([always_up], start_time, end_time, ['B', 'G', 'R']) # this is running while compressing warnings
     assert table is not None
     length = len(table)
     assert length==5
@@ -161,7 +161,7 @@ def test_star_always_up():
     always_up = make_target("Polaris", "02:31:48.7", "+89:15:51")
     with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            table = quality.main([always_up], start_time, end_time, ['B', 'G', 'R']) # this is running while compressing warnings
+            table = mercuryschedule.main([always_up], start_time, end_time, ['B', 'G', 'R']) # this is running while compressing warnings
     assert table is not None
     length = len(table)
     assert length==5
@@ -171,7 +171,7 @@ def test_star_always_up():
     always_up = make_target("Polaris", "02:31:48.7", "+89:15:51")
     with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            table = quality.main([always_up], start_time, end_time, ['B', 'G', 'R']) # this is running while compressing warnings
+            table = mercuryschedule.main([always_up], start_time, end_time, ['B', 'G', 'R']) # this is running while compressing warnings
     assert table is not None
     length = len(table)
     assert length==5
@@ -182,7 +182,7 @@ def test_star_near_moon():
     near_moon_star = FixedTarget.from_name("Spica")
     with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            table = quality.main([near_moon_star], start_time, end_time, ['B', 'G', 'R']) # this is running while compressing warnings
+            table = mercuryschedule.main([near_moon_star], start_time, end_time, ['B', 'G', 'R']) # this is running while compressing warnings
     assert table is not None
     length = len(table)
     assert length==0 #it should not get scheduled at all
@@ -194,7 +194,7 @@ def test_two_overlapping_stars():
     star_two = FixedTarget.from_name("Vega")
     with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            table = quality.main([star_one, star_two], start_time, end_time, ['B', 'G', 'R']) # this is running while compressing warnings
+            table = mercuryschedule.main([star_one, star_two], start_time, end_time, ['B', 'G', 'R']) # this is running while compressing warnings
     assert table is not None
     length = len(table)
     # now, according to FIFO, only Altair Star should get scheduled in that time frame
@@ -204,7 +204,7 @@ def test_two_overlapping_stars():
     # now, let's run the same code but putting star_two as first star
     with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            table = quality.main([star_two, star_one], start_time, end_time, ['B', 'G', 'R']) # this is running while compressing warnings
+            table = mercuryschedule.main([star_two, star_one], start_time, end_time, ['B', 'G', 'R']) # this is running while compressing warnings
     assert table is not None
     length = len(table)
     # now, according to FIFO, only Altair Star should get scheduled in that time frame
@@ -217,7 +217,7 @@ def test_transitioner_blocks():
     start_time = Time('2025-05-09 7:00:00', scale='utc') 
     end_time = Time('2025-05-09 10:40:00', scale='utc')
     my_star = FixedTarget.from_name("Vega")
-    table = quality.main([my_star], start_time, end_time, ['B', 'B', 'B'])
+    table = mercuryschedule.main([my_star], start_time, end_time, ['B', 'B', 'B'])
     assert table is not None
     length = len(table)
     assert length == 3 # no transitioner blocks should be there
