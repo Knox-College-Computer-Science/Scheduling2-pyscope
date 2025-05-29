@@ -1,128 +1,259 @@
-# Contributor Covenant Code of Conduct
+*******
+pyscope
+*******
 
-## Our Pledge
+.. container::
 
-We as members, contributors, and leaders pledge to make participation in our
-community a harassment-free experience for everyone, regardless of age, body
-size, visible or invisible disability, ethnicity, sex characteristics, gender
-identity and expression, level of experience, education, socio-economic status,
-nationality, personal appearance, race, religion, or sexual identity
-and orientation.
+    |License| |Zenodo| |PyPI Version| |PyPI Python Versions| |PyPI Downloads| |Astropy| |GitHub CI| |Code Coverage| |Documentation Status| |Codespaces Status| |pre-commit| |Black| |isort| |Donate|
+v
+    
+    :alt: pyscope logo
 
-We pledge to act and interact in ways that contribute to an open, welcoming,
-diverse, inclusive, and healthy community.
+This is the repository for `pyscope <https://pyscope.readthedocs.io/en/latest/>`_,
+a pure-Python package for robotic scheduling, operation, and control of small
+optical telescopes.
 
-## Our Standards
+`pyscope <https://pyscope.readthedocs.io/en/latest/>`_ is an
+`open-source <LICENSE>`_ project that provides a set of tools to rapidly and easily
+control astronomical instrumentation. It is designed to be modular and extensible,
+allowing users to easily add support for new devices and observatories.
+`pyscope <https://pyscope.readthedocs.io/en/latest/>`_ is built on top of the
+`ASCOM <https://ascom-standards.org/>`_ standard, but also provides support for
+non-ASCOM devices. Users may also access their devices through third-party applications
+such as `MaxIm DL <https://diffractionlimited.com/product/maxim-dl/>`_.
 
-Examples of behavior that contributes to a positive environment for our
-community include:
+Observatories who use `pyscope <https://pyscope.readthedocs.io/en/latest/>`_ can take
+advantage of the `telrun <https://pyscope.readthedocs.io/en/latest/api/pyscope.telrun.html>`_
+module, which provides a simple interface for fully-robotic observatory control.
 
-* Demonstrating empathy and kindness toward other people
-* Being respectful of differing opinions, viewpoints, and experiences
-* Giving and gracefully accepting constructive feedback
-* Accepting responsibility and apologizing to those affected by our mistakes,
-  and learning from the experience
-* Focusing on what is best not just for us as individuals, but for the
-  overall community
+`pyscope <https://pyscope.readthedocs.io/en/latest/>`_ is aiming to become an
+`astropy-affiliated package <https://www.astropy.org/affiliated/>`_.
 
-Examples of unacceptable behavior include:
+Features
+--------
+* Control observatory hardware with Python
 
-* The use of sexualized language or imagery, and sexual attention or
-  advances of any kind
-* Trolling, insulting or derogatory comments, and personal or political attacks
-* Public or private harassment
-* Publishing others' private information, such as a physical or email
-  address, without their explicit permission
-* Other conduct which could reasonably be considered inappropriate in a
-  professional setting
+* Support for `ASCOM <https://ascom-standards.org/>`_ and non-ASCOM devices
 
-## Enforcement Responsibilities
+* `Observatory <https://pyscope.readthedocs.io/en/latest/api/auto_api/pyscope.observatory.Observatory.html>`_
+  convenience methods like `run_autofocus <https://pyscope.readthedocs.io/en/latest/api/auto_api/pyscope.observatory.Observatory.html#pyscope.observatory.Observatory.run_autofocus>`_
+  and `recenter <https://pyscope.readthedocs.io/en/latest/api/auto_api/pyscope.observatory.Observatory.html#pyscope.observatory.Observatory.recenter>`_
 
-Community leaders are responsible for clarifying and enforcing our standards of
-acceptable behavior and will take appropriate and fair corrective action in
-response to any behavior that they deem inappropriate, threatening, offensive,
-or harmful.
+* `telrun <https://pyscope.readthedocs.io/en/latest/api/pyscope.telrun.html>`_ module
+  for fully-robotic operation of an observatory
 
-Community leaders have the right and responsibility to remove, edit, or reject
-comments, commits, code, wiki edits, issues, and other contributions that are
-not aligned to this Code of Conduct, and will communicate reasons for moderation
-decisions when appropriate.
+* Basic data reduction tools like
+  `avg_fits <https://pyscope.readthedocs.io/en/latest/api/auto_api/pyscope.reduction.avg_fits.html>`_
+  and `ccd_calib <https://pyscope.readthedocs.io/en/latest/api/auto_api/pyscope.reduction.ccd_calib.html#pyscope.reduction.ccd_calib>`_
 
-## Scope
+* Simple analysis scripts like
+  `calc_zmag <https://pyscope.readthedocs.io/en/latest/api/auto_api/pyscope.analysis.calc_zmag.html#pyscope.analysis.calc_zmag>`_
 
-This Code of Conduct applies within all community spaces, and also applies when
-an individual is officially representing the community in public spaces.
-Examples of representing our community include using an official e-mail address,
-posting via an official social media account, or acting as an appointed
-representative at an online or offline event.
+* Powered by `Astropy <https://www.astropy.org/>`_,
+  `Astropy-affiliated <https://www.astropy.org/affiliated/>`_
+  packages, and `ASCOM <https://ascom-standards.org/>`_
 
-## Enforcement
+------------
+**Team Name:** Team Mercury
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the community leaders responsible for enforcement at
-macro@macalester.edu.
-All complaints will be reviewed and investigated promptly and fairly.
+**Team Members:**
+* Dibyasha Sharma
+* Erin Mulcahey
+* Santosh Pant
+* Ratna Kirti
 
-All community leaders are obligated to respect the privacy and security of the
-reporter of any incident.
+**MVP Goal Achieved:**
+* Priority Scheduling (Made using Astroplan)
+* Multiple pytest implementations to test our code
 
-## Enforcement Guidelines
+Priority Scheduler Implementation
+---------------------------------
+Team Mercury has implemented a priority-based scheduling system with the following assumptions and constraints:
 
-Community leaders will follow these Community Impact Guidelines in determining
-the consequences for any action they deem in violation of this Code of Conduct:
+**Implementation Details:**
+* Built using `Astroplan <https://astroplan.readthedocs.io/>`_ functionalities with minor optimizations for scheduling
+* Uses First-In-First-Out (FIFO) system for concurrent observations
+* Overlapping observations result in subsequent requests being dropped
 
-### 1. Correction
+**Scheduling Constraints:**
+* **Minimum observation time:** 32 minutes for at least one filter
+* **Time zone:** All output times are in UTC
+* **Air mass constraint:** Maximum air mass of 3.0
+* **Moon separation:** Minimum 30 degrees separation from the Moon (targets below this threshold are not scheduled)
+* **Quality assessment:** Direct constraint imports instead of separate quality score functions
 
-**Community Impact**: Use of inappropriate language or other behavior deemed
-unprofessional or unwelcome in the community.
+**System Behavior:**
+* For multiple targets: Single block scheduling approach
+* Constraint validation occurs before scheduling
+* No sch file parser implementation (functionality requires improvement)
 
-**Consequence**: A private, written warning from community leaders, providing
-clarity around the nature of the violation and an explanation of why the
-behavior was inappropriate. A public apology may be requested.
+Installation
+------------
+pyscope is available on PyPI and can be installed with pip:
 
-### 2. Warning
+.. code-block:: bash
 
-**Community Impact**: A violation through a single incident or series
-of actions.
+    pip install pyscope
 
-**Consequence**: A warning with consequences for continued behavior. No
-interaction with the people involved, including unsolicited interaction with
-those enforcing the Code of Conduct, for a specified period of time. This
-includes avoiding interactions in community spaces as well as external channels
-like social media. Violating these terms may lead to a temporary or
-permanent ban.
+pyscope will be available on conda-forge soon.
 
-### 3. Temporary Ban
+Development Installation
+========================
+|Codespaces|
 
-**Community Impact**: A serious violation of community standards, including
-sustained inappropriate behavior.
+We recommend using a virtual environment for development. You may create a new
+virtual environment with pip:
 
-**Consequence**: A temporary ban from any sort of interaction or public
-communication with the community for a specified period of time. No public or
-private interaction with the people involved, including unsolicited interaction
-with those enforcing the Code of Conduct, is allowed during this period.
-Violating these terms may lead to a permanent ban.
+.. code-block:: bash
 
-### 4. Permanent Ban
+    python -m venv pyscope-dev
+    source pyscope-dev/bin/activate
 
-**Community Impact**: Demonstrating a pattern of violation of community
-standards, including sustained inappropriate behavior,  harassment of an
-individual, or aggression toward or disparagement of classes of individuals.
+Or with conda:
 
-**Consequence**: A permanent ban from any sort of public interaction within
-the community.
+.. code-block:: bash
 
-## Attribution
+    conda create -n pyscope-dev python=3.12
+    conda activate pyscope-dev
 
-This Code of Conduct is adapted from the [Contributor Covenant][homepage],
-version 2.0, available at
-https://www.contributor-covenant.org/version/2/0/code_of_conduct.html.
+Then, clone the repository from the Knox College fork:
 
-Community Impact Guidelines were inspired by [Mozilla's code of conduct
-enforcement ladder](https://github.com/mozilla/diversity).
+.. code-block:: bash
 
-[homepage]: https://www.contributor-covenant.org
+    git clone https://github.com/Knox-College-Computer-Science/Scheduling2-pyscope.git
+    cd Scheduling2-pyscope
 
-For answers to common questions about this code of conduct, see the FAQ at
-https://www.contributor-covenant.org/faq. Translations are available at
-https://www.contributor-covenant.org/translations.
+Next, switch to the correct development branch:
+
+.. code-block:: bash
+
+    git checkout team-mercury-hotfixes
+
+Alternatively, you can directly clone the branch using:
+
+.. code-block:: bash
+
+    git clone -b team-mercury-hotfixes https://github.com/Knox-College-Computer-Science/Scheduling2-pyscope.git
+    cd Scheduling2-pyscope
+
+Now, install all the dependencies:
+
+.. code-block:: bash
+
+    pip install -e ".[dev]"
+
+Finally, we are done installing all the dependencies required to run the package.
+You're now ready to test and run `pyscope`.
+
+To run the test cases:
+
+.. code-block:: bash
+
+    cd tests
+    cd telrun
+    pytest test_scheduler.py
+
+To run the main scheduler logic:
+
+.. code-block:: bash
+
+    cd ../../pyscope/telrun
+    python quality.py
+
+Common Errors
+-------------
+If you encounter errors such as missing modules or failed dependencies, try the following steps:
+
+1. Make sure your conda environment is **activated properly**.
+2. Confirm that the Python version is **3.12** as required.
+3. Verify that your **current working directory** is correct.
+4. If all of the above are correct and you're still facing issues, delete the conda environment and create a fresh one by following the steps again from the top.
+
+Usage
+-----
+TBD
+
+Documentation
+-------------
+All supporting documentation can be found at `readthedocs <https://pyscope.readthedocs.io/en/latest/>`_.
+
+Citing
+------
+If you use this package in your research, please cite it using the following:
+
+History
+-------
+pyscope is based off of the IOTAlib (Iowa Optical Telescope Automation library) package, drawing on 25+ years of robotic observatory development at the University of Iowa, now with an emphasis on usage by anyone with a computerized telescope and python experience.
+
+Contributing
+------------
+Please see the `developer documentation <https://pyscope.readthedocs.io/en/latest/development/>`_.
+
+License
+-------
+This project is licensed under the `GNU AGPLv3 License <LICENSE>`_.
+
+Issues
+------
+Please post any issues you find `here <https://github.com/macro-consortium/pyscope/issues>`_.
+
+.. |License| image:: https://img.shields.io/pypi/l/pyscope
+    :target: https://pypi.org/project/pyscope/
+    :alt: License
+
+.. |Zenodo| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.8403570.svg
+    :target: https://doi.org/10.5281/zenodo.8403570
+    :alt: Zenodo
+
+.. |PyPI Version| image:: https://img.shields.io/pypi/v/pyscope
+    :target: https://pypi.org/project/pyscope/
+    :alt: PyPI Version
+
+.. |PyPI Python Versions| image:: https://img.shields.io/pypi/pyversions/pyscope?logo=Python
+    :target: https://pypi.org/project/pyscope/
+    :alt: PyPI Python Versions
+
+.. |PyPI Downloads| image:: https://img.shields.io/pypi/dm/pyscope?logo=python
+    :target: https://pypi.org/project/pyscope/
+    :alt: PyPI Downloads
+
+.. |Astropy| image:: http://img.shields.io/badge/powered%20by-AstroPy-orange.svg?style=flat
+    :target: http://www.astropy.org
+    :alt: Powered by Astropy
+
+.. |GitHub CI| image:: https://img.shields.io/github/actions/workflow/status/macro-consortium/pyscope/ci.yml?logo=GitHub&label=CI
+    :target: https://github.com/macro-consortium/pyscope/actions/workflows/ci.yml
+    :alt: GitHub CI
+
+.. |Code Coverage| image:: https://codecov.io/gh/macro-consortium/pyscope/branch/main/graph/badge.svg
+    :target: https://app.codecov.io/gh/macro-consortium/pyscope/
+    :alt: Code Coverage
+
+.. |Documentation Status| image:: https://img.shields.io/readthedocs/pyscope?logo=ReadtheDocs
+    :target: https://pyscope.readthedocs.io/en/latest/
+    :alt: Documentation Status
+
+.. |Codespaces Status| image:: https://github.com/macro-consortium/pyscope/actions/workflows/codespaces/create_codespaces_prebuilds/badge.svg
+    :target: https://github.com/macro-consortium/pyscope/actions/workflows/codespaces/create_codespaces_prebuilds
+    :alt: Codespaces Status
+
+.. |pre-commit| image:: https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit
+    :target: https://github.com/pre-commit/pre-commit
+    :alt: pre-commit enabled
+
+.. |Black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/psf/black
+    :alt: Code Style
+
+.. |isort| image:: https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336
+    :target: https://pycqa.github.io/isort/
+    :alt: isort
+
+.. |Donate| image:: https://img.shields.io/badge/Donate-to_pyscope-crimson
+    :target: https://github.com/sponsors/macro-consortium
+    :alt: Donate
+
+.. |Codespaces| image:: https://github.com/codespaces/badge.svg
+    :target: https://codespaces.new/macro-consortium/pyscope
+    :alt: Codespaces
+
