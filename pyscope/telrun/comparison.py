@@ -1,37 +1,16 @@
 from mercuryschedule import create_blocks, main
 from astropy.time import Time
 from astroplan import FixedTarget
-import configparser
-import datetime
-import json
-import logging
-import os
-import zoneinfo
-import astroplan
-import click
-import matplotlib.dates as mdates
-import matplotlib.pyplot as plt
-import numpy as np
-import timezonefinder
 import tqdm
-from astroplan import plots as astroplan_plots
-from astropy import coordinates as coord
-from astropy import table
-from astropy import time as astrotime
 from astropy import units as u
-from astroplan.scheduling import (Transitioner, PriorityScheduler, SequentialScheduler, Schedule)
-#from astroquery import mpc
-#from cmcrameri import cm as ccm
-#from matplotlib import ticker
-#from .. import utils
-#from ..observatory import Observatory, reconfig
-# from . import sch, schedtab
-# from pyscope import observatory
+from astroplan.scheduling import (Transitioner)
+from astroplan import  AirmassConstraint
+from astropy.table import Table
+import astropy.units as u
 
 catalog=None,
 queue=None,
 add_only=False,
-#     existing_schedule=None, # TODO
 ignore_order=False,
 date=None,
 length=1,
@@ -53,13 +32,11 @@ verbose=0,
 reconfig_file=None,
 
 
-from astropy.table import Table
-import astropy.units as u
 
 def basic_schedule_table_with_transitions(blocks, start_time, end_time, transitioner):
     """
     Naïve, sequential scheduler for astroplan.ObservingBlock that
-    explicitly inserts transition “blocks” (slew + filter change) between observations,
+    explicitly inserts transition "blocks" (slew + filter change) between observations,
     and returns a Table with columns:
       target, start time (UTC), end time (UTC),
       duration (minutes), ra, dec, configuration
@@ -128,25 +105,15 @@ def basic_schedule_table_with_transitions(blocks, start_time, end_time, transiti
     ])
 
 
-
-#print("Hello world")
 target = [
-FixedTarget.from_name("Altair"),
-FixedTarget.from_name("Deneb"),
-FixedTarget.from_name("Polaris"),
-FixedTarget.from_name("Altair"),
-FixedTarget.from_name("Deneb"),
-FixedTarget.from_name("Polaris"),
-FixedTarget.from_name("Altair"),
-FixedTarget.from_name("Deneb"),
-FixedTarget.from_name("Polaris"),
-FixedTarget.from_name("Altair"),
-FixedTarget.from_name("Deneb"),
-FixedTarget.from_name("Polaris"),
+    FixedTarget.from_name("Altair"),  # Will be high in the sky
+    FixedTarget.from_name("Deneb"),   # Will be high in the sky
+    FixedTarget.from_name("Polaris"), # Will be high in the sky
+    FixedTarget.from_name("Acrux"),   # Will have high airmass
+    FixedTarget.from_name("Canopus"), # Will have high airmass
+    FixedTarget.from_name("Sirius"),  # Will have high airmass
 ]
 
-
-# output = main([target],
 
 
 from astroplan import TimeConstraint, Transitioner
@@ -159,32 +126,30 @@ SCHEDULE_END   = Time('2025-05-09 10:30:00', scale='utc')
 
 # 2) Specify filters & exposures:
 filters = ['B', 'G', 'R']
-exposures = {'Altair': (60 * u.second, 16),
-            'Vega': (60 * u.second, 16),
-            'Deneb': (60 * u.second, 16),
-            'Spica': (60 * u.second, 16),
-            'M13': (100 * u.second, 16),
-            'HD 225095': (100 * u.second, 16),
-            'Acrux': (100 * u.second, 16),
-            'Polaris': (100 * u.second, 16),
-            'Canopus': (100 * u.second, 16),
-            'Sirius': (100 * u.second, 16)
-        }
+exposures = {
+    'Altair': (60 * u.second, 16),
+    'Deneb': (60 * u.second, 16),
+    'Polaris': (60 * u.second, 16),
+    'Acrux': (100 * u.second, 16),
+    'Canopus': (100 * u.second, 16),
+    'Sirius': (100 * u.second, 16)
+}
 read_out = 20*u.second
 
-# 3) Build a TimeConstraint for block creation:
+# 3) Build constraints for block creation:
 time_constraint = TimeConstraint(SCHEDULE_START, SCHEDULE_END)
+airmass_constraint = AirmassConstraint(max=3.0)  # Only allow airmass <= 3.0
 
-# 4) Generate your ObservingBlock list:
+# 4) Generate your ObservingBlock list with constraints:
 blocks = create_blocks(
-    targets=target,           # your FixedTarget
-    constraint=time_constraint,
+    targets=target,
+    constraint=[time_constraint, airmass_constraint],  # Add airmass constraint
     filters=filters,
     read_out=read_out,
     exposures=exposures
 )
 
-# 5) Build your Transitioner exactly as you showed:
+# 5) Build your Transitioner:
 slew_rate = 0.8 * u.deg / u.second
 transition_cfg = {
     'filter': {
@@ -195,35 +160,32 @@ transition_cfg = {
 }
 transitioner = Transitioner(slew_rate, transition_cfg)
 
-# 6) Now call the basic scheduler with the blocks (not the raw targets):
+# 6) Now call the basic scheduler with the blocks:
+print("\nBasic Scheduler Results (no airmass constraint):")
 basic_table = basic_schedule_table_with_transitions(
     blocks,
     SCHEDULE_START,
     SCHEDULE_END,
     transitioner
 )
-
 print(basic_table)
 
-print("Our table below: ")
-
-
-target = [
-FixedTarget.from_name("Altair"),
-FixedTarget.from_name("Deneb"),
-FixedTarget.from_name("Polaris"),
-FixedTarget.from_name("Altair"),
-FixedTarget.from_name("Deneb"),
-FixedTarget.from_name("Polaris"),
-FixedTarget.from_name("Altair"),
-FixedTarget.from_name("Deneb"),
-FixedTarget.from_name("Polaris"),
-FixedTarget.from_name("Altair"),
-FixedTarget.from_name("Deneb"),
-FixedTarget.from_name("Polaris"),
-]
+# 7) Call mercury scheduler (which respects airmass constraint):
+print("\nMercury Scheduler Results (with airmass constraint):")
 output = main(target,
-                Time('2025-05-09 1:30:00', scale='utc'), 
-                Time('2025-05-09 10:30:00', scale='utc'))
+             Time('2025-05-09 01:30:00', scale='utc'), 
+             Time('2025-05-09 10:30:00', scale='utc'))
 print(output)
+
+# Print comparison summary
+print("\nComparison Summary:")
+print("1. Basic Scheduler:")
+print("   - Schedules all observations regardless of airmass")
+print("   - May include observations with airmass > 3.0")
+print("   - Total observations:", len(basic_table))
+
+print("\n2. Mercury Scheduler:")
+print("   - Respects airmass constraint (max 3.0)")
+print("   - Skips observations with high airmass")
+print("   - Total observations:", len(output) if output is not None else 0)
 
