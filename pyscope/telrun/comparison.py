@@ -7,6 +7,9 @@ from astroplan.scheduling import (Transitioner)
 from astroplan import  AirmassConstraint
 from astropy.table import Table
 import astropy.units as u
+from astroplan import TimeConstraint, Transitioner
+from astropy.time import Time
+import astropy.units as u
 
 catalog=None,
 queue=None,
@@ -113,12 +116,6 @@ target = [
     FixedTarget.from_name("Canopus"), # Will have high airmass
     FixedTarget.from_name("Sirius"),  # Will have high airmass
 ]
-
-
-
-from astroplan import TimeConstraint, Transitioner
-from astropy.time import Time
-import astropy.units as u
 
 # 1) Define your observing window:
 SCHEDULE_START = Time('2025-05-09 01:30:00', scale='utc')

@@ -134,7 +134,7 @@ def main(incomingTargets, starttime, endtime, filters=None, exposures=None, read
     time_constraint = TimeConstraint(SCHEDULE_START, SCHEDULE_END)
     blocks = create_blocks(targets, time_constraint, filters, read_out, exposures)
     if not blocks:
-        print("⚠️ No valid observing blocks created. Skipping scheduling.")
+        print("No valid observing blocks created. Skipping scheduling.")
         return Table()  # or None, depending on how your tests handle it
 
     print("\n=== Running Priority Scheduler ===")

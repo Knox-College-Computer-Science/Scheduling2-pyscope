@@ -39,11 +39,6 @@ def test_HD_225095_Less_Than_35():
 
     assert table is None
 
-    # num_rows = len(table)
-    # print(f"Table has {num_rows} rows")
-    # assert num_rows > 0
-    # assert num_rows == 3
-
 def test_HD_225095_One_Hour():
     # To test, we need following things
     # One: Start time 
